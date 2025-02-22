@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Run tests
+        run: |
+          go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+          go tool cover -func=coverage.txt
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: true
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          output_name="css-color-variable-creator"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            output_name="$output_name.exe"
+          fi
+          go build -o "dist/${{ matrix.goos }}_${{ matrix.goarch }}/$output_name" .
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: css-color-variable-creator-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/${{ matrix.goos }}_${{ matrix.goarch }}/*
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Create release archives
+        run: |
+          cd artifacts
+          for dir in */; do
+            platform=${dir%/}
+            tar -czf "$platform.tar.gz" "$platform"/*
+          done
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*.tar.gz
+          generate_release_notes: true
