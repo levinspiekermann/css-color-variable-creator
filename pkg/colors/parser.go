@@ -209,16 +209,3 @@ func parseDecimal(dec string) int {
 	}
 	return val
 }
-
-// func isColorFormat(color, format string) bool {
-// 	switch format {
-// 	case "hex":
-// 		return strings.HasPrefix(color, "#")
-// 	case "rgb":
-// 		return strings.HasPrefix(color, "rgb(") && !strings.HasPrefix(color, "rgba(")
-// 	case "rgba":
-// 		return strings.HasPrefix(color, "rgba(")
-// 	default:
-// 		return false
-// 	}
-// }
