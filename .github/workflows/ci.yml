@@ -85,11 +85,21 @@ jobs:
           cd artifacts
           for dir in */; do
             platform=${dir%/}
-            tar -czf "$platform.tar.gz" "$platform"/*
+            # Copy executables with platform-specific names
+            if [[ $platform == *"windows"* ]]; then
+              cp "$platform"/*.exe "../css-color-variable-creator-$platform.exe"
+              (cd "$platform" && zip -r "../$platform.zip" .)
+            else
+              cp "$platform"/css-color-variable-creator "../css-color-variable-creator-$platform"
+              tar -czf "$platform.tar.gz" "$platform"/*
+            fi
           done
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: artifacts/*.tar.gz
+          files: |
+            artifacts/*.tar.gz
+            artifacts/*.zip
+            artifacts/css-color-variable-creator-*
           generate_release_notes: true
