@@ -61,7 +61,7 @@ jobs:
           go build -o "dist/${{ matrix.goos }}_${{ matrix.goarch }}/$output_name" .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: css-color-variable-creator-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/${{ matrix.goos }}_${{ matrix.goarch }}/*
@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
