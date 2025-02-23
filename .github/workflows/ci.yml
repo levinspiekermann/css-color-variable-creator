@@ -88,10 +88,10 @@ jobs:
             # Copy executables with platform-specific names
             if [[ $platform == *"windows"* ]]; then
               cp "$platform"/*.exe "../css-color-variable-creator-$platform.exe"
-              (cd "$platform" && zip -r "../$platform.zip" .)
+              (cd "$platform" && zip -r "../../$platform.zip" .)
             else
               cp "$platform"/css-color-variable-creator "../css-color-variable-creator-$platform"
-              tar -czf "$platform.tar.gz" "$platform"/*
+              (cd "$platform" && tar -czf "../../$platform.tar.gz" *)
             fi
           done
 
@@ -99,7 +99,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/*.tar.gz
-            artifacts/*.zip
+            *.tar.gz
+            *.zip
             artifacts/css-color-variable-creator-*
           generate_release_notes: true
