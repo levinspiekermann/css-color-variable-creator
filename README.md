@@ -31,7 +31,15 @@ css-color-variable-creator create -d output/dir path/to/your/style.css
 
 # Convert all colors to a specific format (hex, rgb, or rgba)
 css-color-variable-creator create -f rgba path/to/your/style.css
+
+# Specify output file names
+css-color-variable-creator create -o custom-output.css -v custom-variables.css path/to/your/style.css
 ```
+
+### Flags
+
+- `-o`, `--output-file`: Name for the output file (default: `{filename}-with-variables.css`)
+- `-v`, `--output-variable-file`: Name for the output variables file (default: `{filename}-variables.css`)
 
 ### Output
 

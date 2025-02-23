@@ -23,6 +23,8 @@ var Cmd = &cobra.Command{
 		inputFile := args[0]
 		outputDir, _ := cmd.Flags().GetString("output-dir")
 		format, _ := cmd.Flags().GetString("format")
+		outputFile, _ := cmd.Flags().GetString("output-file")
+		outputVariableFile, _ := cmd.Flags().GetString("output-variable-file")
 
 		// Validate format flag
 		if format != "" && format != "hex" && format != "rgb" && format != "rgba" {
@@ -62,9 +64,23 @@ var Cmd = &cobra.Command{
 			}
 		}
 
-		baseFileName := strings.TrimSuffix(filepath.Base(inputFile), filepath.Ext(inputFile))
-		variablesFile := filepath.Join(baseDir, baseFileName+"-variables.css")
-		modifiedFile := filepath.Join(baseDir, baseFileName+"-with-variables"+filepath.Ext(inputFile))
+		filepathExt := filepath.Ext(inputFile)
+		baseFileName := strings.TrimSuffix(filepath.Base(inputFile), filepathExt)
+
+		variablesFileName := baseFileName + "-variables" + filepathExt
+
+		if outputVariableFile != "" {
+			variablesFileName = outputVariableFile
+		}
+
+		modifiedFileName := baseFileName + "-with-variables" + filepathExt
+
+		if outputFile != "" {
+			modifiedFileName = outputFile
+		}
+
+		variablesFile := filepath.Join(baseDir, variablesFileName)
+		modifiedFile := filepath.Join(baseDir, modifiedFileName)
 
 		// Generate the variables file
 		err = generator.GenerateVariablesFile(matches, variablesFile)
@@ -91,4 +107,6 @@ var Cmd = &cobra.Command{
 func init() {
 	Cmd.Flags().StringP("output-dir", "d", "", "directory for output files (default: same as input file)")
 	Cmd.Flags().StringP("format", "f", "", "convert all colors to specified format: hex, rgb, or rgba")
+	Cmd.Flags().StringP("output-file", "o", "", "name for the output file (default: {filename}-with-variables.css)")
+	Cmd.Flags().StringP("output-variable-file", "v", "", "name for the output variables file (default: {filename}-variables.css)")
 }
